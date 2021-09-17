@@ -6,21 +6,33 @@ namespace Service;
 
 class FailAction extends Actions
 {
-    const ACTION_FAILURE = "Failure";
-    const ACTION_FAILURE_READABLE = "Провалить задание";
+    const INNER_NAME = "Failure";
+    const READABLE_NAME = "Провалить задание";
 
-    public function rightsCheck($clientId, $workerId, $status, $requestId)
+    /**
+     * @param int $clientId
+     * @param int $workerId
+     * @param int $userId
+     * @return bool
+     */
+    public function rightsCheck(int $clientId, int $workerId, int $userId):bool
     {
-        return $status == Task::STATUS_IN_WORK && $workerId == $requestId;
+        return $workerId == $userId;
     }
 
-    public function getInnerName()
+    /**
+     * @return string
+     */
+    public function getInnerName():string
     {
-        return self::ACTION_FAILURE;
+        return self::INNER_NAME;
     }
 
-    public function getReadableName()
+    /**
+     * @return string
+     */
+    public function getReadableName():string
     {
-        return self::ACTION_FAILURE_READABLE;
+        return self::READABLE_NAME;
     }
 }

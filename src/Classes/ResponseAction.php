@@ -6,21 +6,33 @@ namespace Service;
 
 class ResponseAction extends Actions
 {
-    const ACTION_RESPONSE = "Response";
-    const ACTION_RESPONSE_READABLE = "Откликнуться";
+    const INNER_NAME = "Response";
+    const READABLE_NAME = "Откликнуться";
 
-    public function rightsCheck($clientId, $workerId, $status, $requestId)
+    /**
+     * @param int $clientId
+     * @param int $workerId
+     * @param int $userId
+     * @return bool
+     */
+    public function rightsCheck(int $clientId, int $workerId, int $userId):bool
     {
-        return ($status == Task::STATUS_NEW || $status == Task::STATUS_FAILED)/* && !$workerId*/ ;
+        return  isset($workerId)&& $clientId!=$userId;
     }
 
-    public function getInnerName()
+    /**
+     * @return string
+     */
+    public function getInnerName():string
     {
-        return self::ACTION_RESPONSE;
+        return self::INNER_NAME;
     }
 
-    public function getReadableName()
+    /**
+     * @return string
+     */
+    public function getReadableName():string
     {
-        return self::ACTION_RESPONSE_READABLE;
+        return self::READABLE_NAME;
     }
 }
