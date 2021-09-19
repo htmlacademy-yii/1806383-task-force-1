@@ -1,108 +1,195 @@
 <?php
 
 namespace Service;
+
+
 class Task
 {
-    //Возможные статусы
-    const STATUS_NEW = "New";
-    const STATUS_ABORTED = "Aborted";
-    const STATUS_IN_WORK = "In work";
-    const STATUS_COMPLETED = "Completed";
-    const STATUS_FAILED = "Failed";
-    //Возможные действия
-    const ACTION_RESPONSE = "Response";
-    const ACTION_ABORT = "Abort";
-    const ACTION_FAILURE = "Failure";
-    const ACTION_COMPLETE = "Complete";
-    const ACTION_WRONG = "Wrong Action!";
-    //свойства-идентификаторы
-    private $clientId, $workerId;//исправлено:убран blacklist, Client вместо User
-    private $status = self::STATUS_NEW;
-    //исправлены карты статуса -в качеcтве ключа теперь константа
-    private $statusMap = [self::STATUS_NEW => "Новая", self::STATUS_ABORTED => "Отменена", self::STATUS_IN_WORK => "В работе", self::STATUS_COMPLETED => "Выполнено", self::STATUS_FAILED => "Не выполнено"];
-    //исправлены карты действий-в качестве ключа теперь константа + упрощение карты
-    private $actionMap = [self::ACTION_RESPONSE => "Откликнуться", self::ACTION_ABORT => "Отмененить", self::ACTION_FAILURE => "Отказаться", self::ACTION_COMPLETE => "Выполненить"];
+    /**
+     * @var array
+     */
+    public $actions = [];
 
-    public function __construct($clientId, $workerId)
+//Возможные статусы
+
+
+    const STATUS_NEW = "New";
+
+
+    const STATUS_ABORTED = "Aborted";
+
+
+    const STATUS_IN_WORK = "In work";
+
+
+    const STATUS_COMPLETED = "Completed";
+
+
+    const STATUS_FAILED = "Failed";
+
+//Возможные действия
+
+    
+    const ACTION_WRONG = "Wrong Action!";
+
+//свойства-идентификаторы
+
+    /**
+     * @var int
+     */
+    /**
+     * @var int
+     */
+    private $clientId, $workerId;
+
+    /**
+     * @var string
+     */
+    private $status = self::STATUS_NEW;
+
+    /**
+     * @var string[]
+     */
+    private $statusMap = [
+        self::STATUS_NEW => "Новая",
+        self::STATUS_ABORTED => "Отменена",
+        self::STATUS_IN_WORK => "В работе",
+        self::STATUS_COMPLETED => "Выполнено",
+        self::STATUS_FAILED => "Не выполнено"
+    ];
+
+    /**
+     * @var array
+     */
+    private $actionMap = [
+        AbortAction::INNER_NAME => AbortAction::READABLE_NAME,
+        ResponseAction::INNER_NAME => ResponseAction::READABLE_NAME,
+        CompleteAction::INNER_NAME => CompleteAction::READABLE_NAME,
+        FailAction::INNER_NAME => FailAction::READABLE_NAME
+    ];
+
+    /**
+     * Task constructor.
+     * @param int $clientId
+     * @param int $workerId
+     */
+    public function __construct(int $clientId, int $workerId)
     {
         $this->clientId = $clientId;
         $this->workerId = $workerId;
-    }//исправление конструктора-при создании новой функции задается исполнитель
-
-    // Переработаны действия-функции заказчика и исполнителя объединены
-    public function nextStatus($action)
-    {
-        $result = null;
-        switch ($action) {
-            case self::ACTION_ABORT:
-                if ($this->status == self::STATUS_NEW) {
-                    $result = self::STATUS_ABORTED;
-                }
-                break;
-            case self::ACTION_COMPLETE:
-                if ($this->status == self::STATUS_IN_WORK) {
-                    $result = self::STATUS_COMPLETED;
-                }
-                break;
-            case self::ACTION_RESPONSE:
-                if ($this->status == self::STATUS_NEW || $this->status == self::STATUS_FAILED) {
-                    $result = self::STATUS_IN_WORK;
-                }
-                break;
-            case self::ACTION_FAILURE:
-                if ($this->status == self::STATUS_IN_WORK) {
-                    $result = self::STATUS_FAILED;
-                }
-                break;
-            default:
-                return self::ACTION_WRONG;
-        }
-        if ($result != null) {
-            $this->status = $result;
-            return $this->status;
-        } else {
-            return self::ACTION_WRONG;
-        }
     }
 
-    public function getActionMap()
+
+    /**
+     * @param Actions $action
+     */
+    public function addAction(Actions $action): void
+    {
+        $this->actions[$action->getInnerName()] = $action;
+    }
+
+    /**
+     * Get next task status if the passed action is applied
+     *
+     * @param Actions $action
+     * @return string status identifier
+     */
+
+    public function nextStatus(Actions $action): ?string
+    {
+        $statusSwitch = [
+            CompleteAction::INNER_NAME => self::STATUS_COMPLETED,
+            FailAction::INNER_NAME => self::STATUS_FAILED,
+            AbortAction::INNER_NAME => self::STATUS_ABORTED,
+            ResponseAction::INNER_NAME => self::STATUS_IN_WORK
+        ];
+        return $statusSwitch[$action->getInnerName()] ?? null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getActionMap(): array
     {
         return $this->actionMap;
-        //исправил карту действий-теперь она возвращает список действий в виде простого массива
+
     }
 
-    public function getStatusMap()
+    /**
+     * @return string[]
+     */
+    public function getStatusMap(): array
     {
         return $this->statusMap;
-        //добавил метод,возвращающий просто массив статусов
     }
 
-    public function getStatus()
+    /**
+     * @return string
+     */
+    public function getStatus(): string
     {
         return $this->status;
     }
 
-    public function actions()//метод который возвращает доступные действия
+    /**
+     * @param string $newStatus
+     * @throws \Exception
+     */
+    public function setStatus(string $newStatus): void
+    {
+        if (!in_array($newStatus, array_keys($this->statusMap))) {
+            throw new \Exception('Trying to set wrong status');
+        }
+        $this->status = $newStatus;
+    }
+
+    /**
+     * Get actions list for current task status
+     *
+     * @param int $userId current user id
+     * @return array
+     */
+
+    public function actions(int $userId): ?array//метод который возвращает доступные действия
     {
         $result = [];
         switch ($this->status) {
-            case "New":
-                $result[] = self::ACTION_ABORT;
-                $result[] = self::ACTION_RESPONSE;
+
+            case self::STATUS_NEW:
+                if ($this->actions[AbortAction::INNER_NAME]->rightsCheck($this->clientId, $this->workerId, $userId)) {
+                    $result[] = $this->actions[AbortAction::INNER_NAME];
+                }
+
+                if ($this->actions[ResponseAction::INNER_NAME]->rightsCheck($this->clientId, $this->workerId, $userId)) {
+                    $result[] = $this->actions[ResponseAction::INNER_NAME];
+                }
+
                 break;
-            case "In work":
-                $result[] = self::ACTION_FAILURE;
-                $result[] = self::ACTION_COMPLETE;
+
+            case self::STATUS_IN_WORK:
+                if ($this->actions[FailAction::INNER_NAME]->rightsCheck($this->clientId, $this->workerId, $userId)) {
+                    $result[] = $this->actions[FailAction::INNER_NAME];
+                }
+
+                if ($this->actions[CompleteAction::INNER_NAME]->rightsCheck($this->clientId, $this->workerId, $userId)) {
+                    $result[] = $this->actions[CompleteAction::INNER_NAME];
+                }
+
                 break;
-            case "Failed":
-                $result[] = self::ACTION_RESPONSE;
+
+            case self::STATUS_FAILED:
+                if ($this->actions[ResponseAction::INNER_NAME]->rightsCheck($this->clientId, $this->workerId, $userId)) {
+                    $result[] = $this->actions[ResponseAction::INNER_NAME];
+                    $this->workerId = null;
+                }
+
                 break;
-            case "Aborted":
+
+            case self::STATUS_ABORTED || self::STATUS_COMPLETED:
                 $result = null;
+
                 break;
-            case "Completed":
-                $result = null;
-                break;
+
         }
         return $result;
     }

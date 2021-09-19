@@ -1,5 +1,5 @@
 {
-    "name": "keks/1806383-task-force-1",
+    "name": "keks/task1806383",
     "autoload": {
         "psr-4": {
             "Service\\": "src/Classes/"

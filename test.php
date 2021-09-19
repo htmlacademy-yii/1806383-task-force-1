@@ -1,69 +1,85 @@
 <?php
+
+use Service\AbortAction;
+use Service\CompleteAction;
+use Service\FailAction;
+use Service\ResponseAction;
+use Service\Task;
+
 require_once("vendor/autoload.php");
+
 // настройка assert
 assert_options(ASSERT_ACTIVE, 1);
-function assertMessage($file, $line, $code = null, $desc = null)
-{
-    echo ($desc ? "$desc - " : '') . " line" . $line . "File $file" . PHP_EOL;
-}
-
 assert_options(ASSERT_CALLBACK, 'assertMessage');
-$task = new Service\Task("Client", "Worker");
 
-//проверка статуса
-try {
-    $status = $task->getStatus();
-    assert($status == $task::STATUS_NEW, 'Wrong task status. Expected "' . $task::STATUS_NEW . '", got "' . $status . '"');
-} catch (Error $e) {
-};
-//проверка работы actions()
-try {
-    $actions = $task->actions();
-    $expected = [$task::ACTION_ABORT, $task::ACTION_RESPONSE];
-    assert($actions == $expected, 'Wrong task actions. Expected "' . print_r($expected, true) . '", got "' . print_r($actions, true) . '"');
+$clientId = 1;
+$workerId = 2;
 
-} catch (Error $e) {
-};
-//проверка реакции на неверные команды
-try {
-    $actions = $task->nextStatus($task::ACTION_FAILURE);
-    assert($actions == $task::ACTION_WRONG, 'This change not allowed');
-} catch (Error $e) {
-}
-//проверка работы nextStatus() и переходов между статусами
-try {
-    $actions = $task->nextStatus($task::ACTION_RESPONSE);
-    assert($actions == $task::STATUS_IN_WORK, 'Wrong task status. Expected "' . $task::STATUS_IN_WORK . '", got "' . $actions . '"');
+$task = new Task($clientId, $workerId);
+$task->addAction(new CompleteAction());
+$task->addAction(new FailAction());
+$task->addAction(new AbortAction());
+$task->addAction(new ResponseAction());
 
-} catch (Error $e) {
-};
-try {
-    $status = $task->getStatus();
-    assert($status == $task::STATUS_IN_WORK, 'Wrong task status. Expected "' . $task::STATUS_IN_WORK . '", got "' . $status . '"');
-    $actions = $task->actions();
-    $expected = [$task::ACTION_FAILURE, $task::ACTION_COMPLETE];
-    assert($actions == $expected, 'Wrong $ask actions. Expected "' . print_r($expected, true) . '", got "' . print_r($actions, true) . '"');
-} catch (Error $e) {
-};
-// проверка работы actions()
-try {
-    $actions = $task->actions();
-    $expected = [$task::ACTION_FAILURE, $task::ACTION_COMPLETE];
-    assert($actions == $expected, 'Wrong task actions. Expected "' . print_r($expected, true) . '", got "' . print_r($actions, true) . '"');
+$currentUserId = 2;
+$task->setStatus(Task::STATUS_NEW);
+$actions = $task->actions($currentUserId);
 
-} catch (Error $e) {
-};
-try {
-    $actions = $task->nextStatus($task::ACTION_COMPLETE);
-    assert($actions == $task::STATUS_COMPLETED, 'Wrong task status. Expected "' . $task::STATUS_COMPLETED . '", got "' . $actions . '"');
+$count = count($actions);
+assert($count == 1, 'Wrong task actions number. Expected 1, got "' . count($actions) . '"');
 
-} catch (Error $e) {
-};
-//проверка реакции на неверные команды
-try {
-    $actions = $task->nextStatus($task::ACTION_FAILURE);
-    assert($actions == $task::ACTION_WRONG, 'This change not allowed');
+$action = array_shift($actions);
+assert($action instanceof ResponseAction, 'Wrong task actions type. Expected `AbortAction`, got "' . get_class($action) . '"');
 
-} catch (Error $e) {
-};
-echo 'Tests finished' . PHP_EOL;
+$currentUserId = 1;
+
+$actions = $task->actions($currentUserId);
+
+$count = count($actions);
+
+assert($count == 1, 'Wrong task actions number. Expected 1, got "' . count($actions) . '"');
+
+$action = array_shift($actions);
+assert($action instanceof AbortAction, 'Wrong task actions type. Expected `AbortAction`, got "' . get_class($action) . '"');
+
+$task->setStatus(Task::STATUS_IN_WORK);
+
+$currentUserId = 2;
+$actions = $task->actions($currentUserId);
+
+$count = count($actions);
+assert($count == 1, 'Wrong task actions number. Expected 1, got "' . count($actions) . '"');
+
+$action = array_shift($actions);
+assert($action instanceof FailAction, 'Wrong task actions type. Expected `AbortAction`, got "' . get_class($action) . '"');
+
+$currentUserId = 1;
+
+$actions = $task->actions($currentUserId);
+
+$count = count($actions);
+
+assert($count == 1, 'Wrong task actions number. Expected 1, got "' . count($actions) . '"');
+
+$action = array_shift($actions);
+assert($action instanceof CompleteAction, 'Wrong task actions type. Expected `AbortAction`, got "' . get_class($action) . '"');
+
+$task->setStatus(Task::STATUS_FAILED);
+
+$currentUserId = 2;
+$actions = $task->actions($currentUserId);
+$count = count($actions);
+assert($count == 1, 'Wrong task actions number. Expected 1, got "' . count($actions) . '"');
+
+$action = array_shift($actions);
+assert($action instanceof ResponseAction, 'Wrong task actions type. Expected `AbortAction`, got "' . get_class($action) . '"');
+
+//$task->setStatus(Task::STATUS_COMPLETED);
+//assert($task->getStatus()!=Task::STATUS_COMPLETED,'Status "completed" not allowed to failed tasks');
+
+$task->setStatus(Task::STATUS_COMPLETED);
+
+$currentUserId = 2;
+$actions = $task->actions($currentUserId);
+echo $actions;
+assert(is_null($actions), 'Wrong task actions number. Expected 0, got more');
