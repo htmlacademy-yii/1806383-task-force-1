@@ -2,7 +2,8 @@
     "name": "keks/task1806383",
     "autoload": {
         "psr-4": {
-            "Service\\": "src/Classes/"
+            "Service\\": "src/Classes/",
+            "Exceptions\\":"src/Classes/Exceptions/"
         }
     },
     "authors": [

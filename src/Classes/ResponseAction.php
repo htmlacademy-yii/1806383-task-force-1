@@ -17,7 +17,7 @@ class ResponseAction extends Actions
      */
     public function rightsCheck(int $clientId, int $workerId, int $userId):bool
     {
-        return  isset($workerId)&& $clientId!=$userId;
+        return $clientId!=$userId;
     }
 
     /**

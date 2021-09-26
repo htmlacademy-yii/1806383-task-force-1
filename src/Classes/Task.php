@@ -2,6 +2,9 @@
 
 namespace Service;
 
+use Exceptions\WrongStatusException;
+use Exceptions\NotFoundException;
+
 
 class Task
 {
@@ -29,7 +32,7 @@ class Task
 
 //Возможные действия
 
-    
+
     const ACTION_WRONG = "Wrong Action!";
 
 //свойства-идентификаторы
@@ -85,7 +88,12 @@ class Task
      */
     public function addAction(Actions $action): void
     {
-        $this->actions[$action->getInnerName()] = $action;
+        if($action->getInnerName()){
+            $this->actions[$action->getInnerName()] = $action;
+        }else{
+            throw new NotFoundException("Class not found");
+        }
+
     }
 
     /**
@@ -136,9 +144,10 @@ class Task
      * @throws \Exception
      */
     public function setStatus(string $newStatus): void
-    {
+    { //throw new WrongStatusException('Trying to set wrong status');
+
         if (!in_array($newStatus, array_keys($this->statusMap))) {
-            throw new \Exception('Trying to set wrong status');
+            throw new WrongStatusException('Trying to set wrong status');
         }
         $this->status = $newStatus;
     }
@@ -152,6 +161,9 @@ class Task
 
     public function actions(int $userId): ?array//метод который возвращает доступные действия
     {
+        if(!($userId==$this->clientId || $userId==$this->workerId)){
+            throw new NotFoundException("User not found");
+        }
         $result = [];
         switch ($this->status) {
 
