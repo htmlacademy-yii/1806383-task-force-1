@@ -40,7 +40,7 @@ assert($count == 1, 'Wrong task actions number. Expected 1, got "' . count($acti
 $action = array_shift($actions);
 assert($action instanceof ResponseAction, 'Wrong task actions type. Expected `AbortAction`, got "' . get_class($action) . '"');
 
-$currentUserId = 4;
+$currentUserId = 1;
 
 try {
     $actions = $task->actions($currentUserId);
