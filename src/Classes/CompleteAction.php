@@ -17,7 +17,7 @@ class CompleteAction extends Actions
      */
     public function rightsCheck(int $clientId, int $workerId, int $userId):bool
     {
-        return $workerId && $clientId == $userId;
+        return $clientId == $userId;
     }
 
     /**
