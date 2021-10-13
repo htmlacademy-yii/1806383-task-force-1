@@ -3,7 +3,8 @@
     "autoload": {
         "psr-4": {
             "Service\\": "src/Classes/",
-            "Exceptions\\":"src/Classes/Exceptions/"
+            "Exceptions\\":"src/Classes/Exceptions/",
+          "DataBaseUtils\\":"src/Classes/DataBaseUtils/"
         }
     },
     "authors": [
@@ -12,5 +13,7 @@
             "email": "sovius5@mail.ru"
         }
     ],
-    "require": {}
+    "require": {
+      "ext-pdo": "*"
+    }
 }

@@ -124,4 +124,12 @@ try {
 }
 assert(empty($actions), 'Wrong task actions number. Expected 0, got more');
 
+try {
+    $tablesCreate = new \DataBaseUtils\createTables\FinalTableCreate();
+    $fillTables = new \DataBaseUtils\fillTables\FinalFill();
+    $tablesCreate->createTables();
+    $fillTables->fillTables();
+} catch (NotFoundException $e) {
+    error_log("file not found!" . $e->getMessage());
+}
 

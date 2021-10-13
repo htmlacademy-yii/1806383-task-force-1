@@ -8,18 +8,18 @@ CREATE TABLE `user` (
   `cityId` int,
   `street` varchar(255),
   `home` varchar(255),
-  `facebook` char,
-  `email` char,
+  `facebook` char(255),
+  `email` char(255),
   `number` int,
-  `cathegoryId` int
+  `categoryId` int
 );
 
 CREATE TABLE `task` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `clientId` int,
   `workerId` int,
-  `title` char,
-  `cathegoryId` int,
+  `title` char(255),
+  `categoryId` int,
   `createdAt` timestamp,
   `description` varchar(255),
   `price` int,
@@ -47,7 +47,7 @@ CREATE TABLE `include` (
   `attachment` MEDIUMBLOB
 );
 
-CREATE TABLE `cityTable` (
+CREATE TABLE `city` (
   `id` int,
   `city` varchar(255),
   `coordinatesLatitude` decimal(10,8) DEFAULT NULL,
@@ -55,15 +55,15 @@ CREATE TABLE `cityTable` (
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `cathegory` (
+CREATE TABLE `category` (
   `id` int PRIMARY KEY,
-  `cathegories` varchar(255)
+  `categories` varchar(255)
 );
 
-CREATE TABLE `userCathegory` (
+CREATE TABLE `userCategory` (
   `userId` INT NOT NULL,
-  `cathegoryId` INT NOT NULL,
-  CONSTRAINT `userCathegory_PK` PRIMARY KEY (`userId`,`cathegoryId`)
+  `categoryId` INT NOT NULL,
+  CONSTRAINT `userCategory_PK` PRIMARY KEY (`userId`,`categoryId`)
 
 );
 
@@ -77,11 +77,11 @@ ALTER TABLE `comment` ADD FOREIGN KEY (`id`) REFERENCES `task` (`id`);
 
 ALTER TABLE `include` ADD FOREIGN KEY (`id`) REFERENCES `task` (`id`);
 
-ALTER TABLE `task` ADD CONSTRAINT task_FK FOREIGN KEY (`cathegoryId`) REFERENCES `cathegory`(`id`);
+ALTER TABLE `task` ADD CONSTRAINT task_FK FOREIGN KEY (`categoryId`) REFERENCES `category`(`id`);
 
 
-ALTER TABLE `userCathegory` ADD CONSTRAINT `userCathegory_FK` FOREIGN KEY (`cathegoryId`) REFERENCES `cathegory`(`id`);
-ALTER TABLE `userCathegory` ADD CONSTRAINT `userCathegory_FK_1` FOREIGN KEY (`userId`) REFERENCES `user`(`id`);
+ALTER TABLE `userCategory` ADD CONSTRAINT `userCategory_FK` FOREIGN KEY (`categoryId`) REFERENCES `category`(`id`);
+ALTER TABLE `userCategory` ADD CONSTRAINT `userCategory_FK_1` FOREIGN KEY (`userId`) REFERENCES `user`(`id`);
 
 
 ALTER TABLE `user` ADD CONSTRAINT `user_FK` FOREIGN KEY (`cityId`) REFERENCES `cityTable`(`id`);
