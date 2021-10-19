@@ -161,7 +161,7 @@ class Task
 
     public function actions(int $userId): ?array//метод который возвращает доступные действия
     {
-        if(!($userId==$this->clientId /*|| ($this->workerId && $userId==$this->workerId)*/)){
+        if(!($userId==$this->clientId)){
             throw new NotFoundException("User not found");
         }
         $result = [];

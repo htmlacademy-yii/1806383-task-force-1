@@ -25,7 +25,7 @@ class FinalTableCreate extends DataBaseControl
                     ALTER TABLE `userCategory` ADD CONSTRAINT `userCategory_FK` FOREIGN KEY (`categoryId`) REFERENCES `category`(`id`);
                     ALTER TABLE `userCategory` ADD CONSTRAINT `userCategory_FK_1` FOREIGN KEY (`userId`) REFERENCES `user`(`id`);
 
-                    ALTER TABLE `user` ADD CONSTRAINT `user_FK` FOREIGN KEY (`cityId`) REFERENCES `cityTable`(`id`);";
+                    ALTER TABLE `user` ADD CONSTRAINT `user_FK` FOREIGN KEY (`cityId`) REFERENCES `city`(`id`);";
     public function createTables()
     {
         $flag = 0;

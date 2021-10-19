@@ -1,0 +1,19 @@
+{
+    "name": "keks/task1806383",
+    "autoload": {
+        "psr-4": {
+            "Service\\": "src/Classes/",
+            "Exceptions\\":"src/Classes/Exceptions/",
+          "DataBaseUtils\\":"src/Classes/DataBaseUtils/"
+        }
+    },
+    "authors": [
+        {
+            "name": "sovius23",
+            "email": "sovius5@mail.ru"
+        }
+    ],
+    "require": {
+      "ext-pdo": "*"
+    }
+}

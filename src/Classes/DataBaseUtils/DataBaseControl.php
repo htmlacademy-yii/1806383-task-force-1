@@ -20,7 +20,10 @@ class DataBaseControl
 
     public function __construct()
     {
-        $this->pdo = new PDO(self::TYPE . ":host=" . self::HOST . ";dbname=" . self::DATA_BASE . ";charset=" . self::CHAR, self::LOGIN, self::PASSWORD, self::OPTIONS);
+        if(empty($this->pdo)){
+            $this->pdo = new PDO(self::TYPE . ":host=" . self::HOST . ";dbname=" . self::DATA_BASE . ";charset=" . self::CHAR, self::LOGIN, self::PASSWORD, self::OPTIONS);
+        }
+
     }
 
     protected function isTableExist(string $tableName): bool
