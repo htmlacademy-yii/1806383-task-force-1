@@ -16,8 +16,9 @@ AppAsset::register($this);
     <!DOCTYPE html>
     <html lang="ru">
     <head>
+        <?php $this->registerCsrfMetaTags()?>
         <meta charset="UTF-8">
-        <title>TaskForce</title>
+        <title><?= Html::encode($this->title) ?></title>
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/style.css">
     </head>
