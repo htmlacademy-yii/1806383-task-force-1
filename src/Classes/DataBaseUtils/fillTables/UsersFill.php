@@ -12,6 +12,8 @@ class UsersFill extends \DataBaseUtils\CsvToSQLConverter
 
     public function fillTable(): void
     {
+        $this->PDOQuery("SET foreign_key_checks = 0");
+
 
         while (!$this->file->eof()) {
 
@@ -24,6 +26,7 @@ class UsersFill extends \DataBaseUtils\CsvToSQLConverter
 
             }
         }
+        $this->PDOQuery("SET foreign_key_checks = 1");
     }
 
 }

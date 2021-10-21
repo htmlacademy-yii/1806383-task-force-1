@@ -24,7 +24,7 @@ class CsvToSQLConverter extends DataBaseControl
     public function __construct(string $fileName)
     {
         parent::__construct();
-        $this->file = new SplFileObject($_SERVER['DOCUMENT_ROOT'] . "/1806383-task-force-1/data/" . $fileName . ".csv");
+        $this->file = new SplFileObject(dirname(__FILE__) . '/../../../data/' . $fileName . ".csv");
         if($this->file->current()==""){
             throw new NotFoundException("File not found!");
         }
